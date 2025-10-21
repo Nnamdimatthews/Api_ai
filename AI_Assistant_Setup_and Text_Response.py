@@ -17,9 +17,9 @@ def run_ai_teaching_assistant():
     col_clear, col_export = st.columns([1,2])
 
     with col_clear:
-        if st.button("🧹 Clear Conversation," key="clear_ata"):
+        if st.button("🧹 Clear Conversation", key="clear_ata"):
             st.session_state.history_ata = []
-            
+
     with col_export:
         if st.session_state.history_ata:
             export_text = ""
@@ -43,3 +43,22 @@ def run_ai_teaching_assistant():
             st.session_state.history_ata.append({
                 "question": user_question.strip(), "answer": response
             })
+            st.experimental_rerun()
+        else:
+            st.warning("Please enter a question before clicking on the Ask button.")
+        st.markdown("### Conversation History")
+        for idx, qa in enumerate(st.session_state.history_ata, start=1):
+            st.markdown(f"**Q{idx+1}: {qa['question']}**")
+            st.markdown(f"**A{idx+1}: {qa['answer']}**")
+
+def genarate_response(question, temprature=0.3):
+    try:
+        content = [types.Content(role="user", parts=[types.Part.from_text(text=prompt)])]
+        config_params = types.GenerateTextConfig(
+            temperature=temprature,)
+        response = client.generate_content(model="gemini-2.0-flash",contents=contents, config=config_params)
+        return response.text
+    except Exception as e:
+        return f"error: {str(e)}"
+def generate_math_respone(prompt, temperature=0.1):
+    system_prompt = """You are a Math Mastermind - an expert mathematics problem solveer with exceptional abilities in:"""
